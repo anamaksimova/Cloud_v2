@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
+   <stylesheets>
+      <URL value="@/css/style.css" />
+   </stylesheets>
+   <children>
+      <Button layoutX="183.0" layoutY="145.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Log in" onAction="#tryToAuth"/>
+      <Button fx:id="regButton" layoutX="184.0" layoutY="313.0" mnemonicParsing="false" onAction="#showRegWindow" prefHeight="25.0" prefWidth="124.0" text="Register" />
+      <PasswordField fx:id="passwordField" layoutX="265.0" layoutY="75.0" />
+      <TextField fx:id="loginField" layoutX="36.0" layoutY="75.0" />
+      <Label fx:id="tipLabel" layoutX="21.0" layoutY="242.0" prefHeight="25.0" prefWidth="465.0" text="Если у вас нет акканута MaxCloud , зарегистрируйтесь" />
+      <Label contentDisplay="CENTER" layoutX="35.0" layoutY="40.0" prefHeight="17.0" prefWidth="149.0" text="Login" />
+      <Label contentDisplay="CENTER" layoutX="268.0" layoutY="40.0" prefHeight="17.0" prefWidth="149.0" text="Password" textAlignment="CENTER" />
+
+   </children>
+</AnchorPane>
