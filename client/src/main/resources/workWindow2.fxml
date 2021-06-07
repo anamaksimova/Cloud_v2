@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.WorkWindowController2">
+   <children>
+      <ListView fx:id="listView" onMouseReleased ="#displaySelected" prefHeight="359.0" prefWidth="446.0" />
+      <Button layoutX="459.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="DOWNLOAD" />
+      <Button layoutX="460.0" layoutY="53.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="UPLOAD" />
+      <Button layoutX="459.0" layoutY="105.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="GET INFO" onAction="#info"/>
+      <Button layoutX="459.0" layoutY="157.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="DELETE"  onAction="#delete"/>
+      <TextField fx:id="screen" layoutY="370.0" prefHeight="25.0" prefWidth="499.0" />
+   </children>
+</Pane>
