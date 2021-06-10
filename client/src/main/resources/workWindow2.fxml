@@ -3,13 +3,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.WorkWindowController2">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="509.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.WorkWindowController2">
    <children>
-      <ListView fx:id="listView" onMouseReleased ="#displaySelected" prefHeight="359.0" prefWidth="446.0" />
-      <Button layoutX="459.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="DOWNLOAD" />
-      <Button layoutX="460.0" layoutY="53.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="UPLOAD" />
-      <Button layoutX="459.0" layoutY="105.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="GET INFO" onAction="#info"/>
-      <Button layoutX="459.0" layoutY="157.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="131.0" text="DELETE"  onAction="#delete"/>
-      <TextField fx:id="screen" layoutY="370.0" prefHeight="25.0" prefWidth="499.0" />
+      <ListView fx:id="listView" onMouseReleased="#displaySelected" prefHeight="276.0" prefWidth="446.0" />
+      <Button layoutX="459.0" mnemonicParsing="false" onAction="#download" prefHeight="38.0" prefWidth="131.0" text="DOWNLOAD" />
+      <Button layoutX="460.0" layoutY="53.0" mnemonicParsing="false" onAction="#upload" prefHeight="38.0" prefWidth="131.0" text="UPLOAD" />
+      <Button layoutX="459.0" layoutY="105.0" mnemonicParsing="false" onAction="#info" prefHeight="38.0" prefWidth="131.0" text="GET INFO" />
+      <Button layoutX="459.0" layoutY="157.0" mnemonicParsing="false" onAction="#delete" prefHeight="38.0" prefWidth="131.0" text="DELETE" />
+      <TextField fx:id="screen" layoutY="338.0" prefHeight="57.0" prefWidth="586.0" />
+      <Label fx:id="dirchoose" layoutY="300.0" prefHeight="30.0" prefWidth="446.0" />
+      <Button fx:id="createDir" layoutX="459.0" layoutY="210.0" mnemonicParsing="false" onAction="#createDir" prefHeight="38.0" prefWidth="131.0" text="CREATE DIR" />
+      <Button fx:id="OK" visible="false" layoutX="230.0" layoutY="438.0" mnemonicParsing="false" onAction="#OK" prefHeight="38.0" prefWidth="131.0" text="OK" />
+
    </children>
 </Pane>
