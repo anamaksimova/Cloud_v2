@@ -17,6 +17,8 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -26,12 +28,12 @@ import java.util.logging.Level;
 
 public class Server {
 
+    private  String filenameUP;
+    private  int fileSize;
     int port = 5678;
     Path pathClient = null;
     public AuthService authService;
     private String message;
-    SocketChannel sock;
-    private String fileName;
     private String login;
 
     public Server() throws IOException {
@@ -41,7 +43,6 @@ public class Server {
         server.configureBlocking(false);
         server.bind(new InetSocketAddress(port));
         server.register(selector, server.validOps());
-        //server.register(selector, SelectionKey.OP_ACCEPT);
         boolean exit = false;
         int totalKey = 0;
         Iterator<SelectionKey> iter = null;
@@ -81,7 +82,6 @@ public class Server {
                         else if(key.isConnectable())
                         {
                             SocketChannel sock =(SocketChannel) key.channel();
-                            SocketAddress client = sock.getRemoteAddress();
                             sock.finishConnect();
                             continue;
                         }
@@ -90,7 +90,6 @@ public class Server {
                         {
                             System.out.println("Интерес на чтение");
                             SocketChannel sock =(SocketChannel) key.channel();
-                            SocketAddress client = sock.getRemoteAddress();
                             int readBytes = sock.read(buffer);
                             if (readBytes > 0) {
                                 System.out.println("Читаем !");
@@ -104,20 +103,14 @@ public class Server {
 
                                 buffer.clear();
 
-
-
                                 System.out.println(sb);
                                 String command = sb
                                         .toString();
-//                                        .replace("\n", "")
-//                                        .replace("\r", "");
-                                System.out.println(command+"++++++++++++++++++++++++++++++++++");
 
                                 //регистарция
                                 if (command.startsWith("reg")){
                                     if (!SQL_Handler.connect()) {
                                     RuntimeException e = new RuntimeException("Не удалось подключиться к БД");
-                                    // logger.log(Level.SEVERE, "Не удалось подключиться к БД", e);
                                     throw e;
                                     }
                                     String[] cmd= command.split(" ",3);
@@ -142,7 +135,6 @@ public class Server {
                                 if (command.startsWith("AUTH")){
                                     if (!SQL_Handler.connect()) {
                                     RuntimeException e = new RuntimeException("Не удалось подключиться к БД");
-                                    // logger.log(Level.SEVERE, "Не удалось подключиться к БД", e);
                                     throw e;
                                     }
                                     String[] cmd= command.split(" ",3);
@@ -154,11 +146,7 @@ public class Server {
                                         System.out.println("Пользователь найден, можно работать: " + pathClient);
                                         setMessage("AUTH_OK"+" "+getFileList(cmd[1]));
 
-
-
-
                                         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
-                                       // key.interestOps(key.interestOps() | SelectionKey.OP_READ);
                                     }
                                     else {
                                         System.out.println("Ошибка,такого логина или пароля не существует");
@@ -166,18 +154,9 @@ public class Server {
                                         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
                                     }
 
-
                                 }
 
-//                                if (command.startsWith("UPLOAD")){
-//                                    // channel = ((SocketChannel) key.channel());
-//                                    String[] cmd= command.split(" ",2);
-//                                    fileName=cmd[1];
-//                                    System.out.println(fileName);
-//                                    recieveFile(sock);
-//
-//                                }
-
+                                // команда на удаление файла
                                 if (command.startsWith("DELETE")){
                                     String[] cmd= command.split(" ",2);
                                     String filename = "root\\"+login+"\\"+cmd[1];
@@ -191,50 +170,100 @@ public class Server {
 
 
                                        System.out.println("File deleted: "+filename + sock.getRemoteAddress());
-//                                    } else {
-//                                        //sendMessage("Файл не найден", selector, client);
+//
                                     }
 
                                 }
-
+                                //команда предоставление информации по размеру и дате изменения
                                 if (command.startsWith("INFO")){
                                     String[] cmd= command.split(" ",2);
                                     String filename = "root\\"+login+"\\"+cmd[1];
                                     Path path = Paths.get(filename);
                                     System.out.println(path);
                                     if (Files.exists(path)){
-                                       long sizeFile=Files.size(path);
-//                                       FileTime date=Files.getLastModifiedTime(path);
-//
-//                                        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-//                                        String dateCreated = df.format(date);
-//                                        System.out.println(dateCreated);
 
+                                       long sizeFile=Files.size(path);
+                                        FileTime fileTime=Files.getLastModifiedTime(path);
+                                        ZonedDateTime zonedDateTime = ZonedDateTime.parse(fileTime.toString());
+                                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy  HH:mm:ss");
+                                        System.out.println(dtf.format(zonedDateTime));
+                                        String dateOfChange = dtf.format(zonedDateTime);
 
                                         System.out.println("size:" + sizeFile);
-                                        setMessage("INFO_OK "+cmd[1]+" "+sizeFile);
+                                        setMessage("INFO_OK "+cmd[1]+" "+sizeFile+" "+dateOfChange);
                                         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
 
-//
-//                                    } else {
-//                                        //sendMessage("Файл не найден", selector, client);
                                     }
 
                                 }
+                                //создание диретории
+                                if (command.startsWith("CREATEDIR")){
+                                    String[] cmd= command.split(" ",2);
 
+                                    String dirname = "root\\"+login+"\\"+cmd[1]; System.out.println(dirname);
+                                   Files.createDirectory(Paths.get(dirname));
 
+                                    setMessage("CREATEDIR_OK "+getFileList(login));
+                                        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
 
+                                }
 
+                                //команда на скачивание файла с сервера
+                                if (command.startsWith("DOWN")){
+                                    String[] cmd= command.split(" ",2);
+                                    String filename = "root\\"+login+"\\"+cmd[1];
+                                    Path path = Paths.get(filename);
+                                    System.out.println(path);
+                                    long sizeFile=Files.size(path);
+                                    if (Files.exists(path)){
 
+                                        setMessage("DOWN_OK "+cmd[1] +" "+sizeFile);
+
+                                        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+
+                                    }
+
+                                }
+                                //команда на загрузку файла на сервер
+                                if (command.startsWith("UP")){
+                                    String[] cmd= command.split(" ",3);
+                                     filenameUP = "root\\"+login+"\\"+cmd[1];
+                                    Path path = Paths.get(filenameUP);
+                                    System.out.println(path);
+
+                                    fileSize=0;
+                                    fileSize= Integer.parseInt(cmd[2]);
+                                    System.out.println(fileSize);
+
+                                        Thread t2 = new Thread(() -> {
+
+                                        try {
+                                            recieveFile(sock);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        } try {
+                                            Thread.sleep(10);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    });   t2.start();
+                                        try {
+                                            t2.join();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        setMessage("UP_OK "+getFileList(login));
+
+                                        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+                                }
 
                                 buffer.flip();
                                 System.out.println("Закончили чтение!");
-                               // key.interestOps(key.interestOps() | SelectionKey.OP_READ);
                             }
                             else
                             {
                                 System.out.println("Клиент принудительно закрыл соединение! result <= 0");
-
                                 key.channel().close();
                                 key.cancel();
                             }
@@ -245,19 +274,67 @@ public class Server {
                         if(key.isValid())
                             if(key.isWritable())
                             {
-                                try
-                                { TimeUnit.SECONDS.sleep(1);
+                                try {
+                                    TimeUnit.SECONDS.sleep(1);
                                     System.out.println("Пишем...!");
-
-
 
                                     SocketChannel sock = ((SocketChannel) key.channel());
 
-                                    sock.write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
+                                    Thread t1 = new Thread(() -> {
+                                        String[] cmd = message.split(" ", 3);
+                                        String filename = "root\\" + login + "\\" + cmd[1];
+                                        Path path = Paths.get(filename);
+                                        int bufSize = 10240;
+                                        int counter = 0;
+
+                                        System.out.println("отправим файл client" + path);
+                                        FileChannel fileChannel = null;
+                                        try {
+                                            fileChannel = FileChannel.open(path);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        ByteBuffer buf = ByteBuffer.allocate(bufSize);
+                                        System.out.println("file channel");
+                                        do {
+                                            int noOfBytesRead = 0;
+                                            try {
+                                                noOfBytesRead = fileChannel.read(buf);
+                                                System.out.println(noOfBytesRead);
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                            if (noOfBytesRead <= 0) {
+                                                break;
+                                            }
+                                            counter += noOfBytesRead;
+                                            buf.flip();
+                                            do {
+                                                try {
+                                                    noOfBytesRead -= sock.write(buf);
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            } while (noOfBytesRead > 0);
+                                            buf.clear();
+
+                                        } while (true);
+                                        try {
+                                            fileChannel.close();Thread.sleep(10);
+                                        } catch (IOException | InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        System.out.println("Reciever " + counter);
+                                    });
+                                    if (message.startsWith("DOWN_OK")) {
 //
+                                        t1.start(); //  t1.join();
+                                    }
+
+                                    sock.write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
+
                                     key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
                                     System.out.println("Закончили писать !");
-                                    //sendMsg("привет", selector, sock.getRemoteAddress());
                                     key.interestOps(key.interestOps() | SelectionKey.OP_READ);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
@@ -282,45 +359,25 @@ public class Server {
         this.login=login;
     }
 
-
-
-//
         public AuthService getAuthService() {
     return authService;}
 
-//    private void sendMessage(String message, Selector selector, SocketAddress client) throws IOException {
-//        for (SelectionKey key : selector.keys()) {
-//            if (key.isValid() && key.channel() instanceof SocketChannel) {
-//                if (((SocketChannel)key.channel()).getRemoteAddress().equals(client)) {
-//                    ((SocketChannel)key.channel())
-//                            .write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
-//                }
-//            }
-//        }
-//    }
 
+        //получение списка файлов в директории пользователя
     public String getFileList(String login) {
         return String.join(" ", new File("root\\"+login).list());
     }
-
+        //установка желаемого сообщения на отправку
         private void setMessage(String message){
         this.message=message;
         }
-    private void sendMsg(String message, Selector selector, SocketAddress client) throws IOException {
-        for (SelectionKey key : selector.keys()) {
-            if (key.isValid() && key.channel() instanceof SocketChannel) {
-                if (((SocketChannel)key.channel()).getRemoteAddress().equals(client)) {
-                    ((SocketChannel)key.channel())
-                            .write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
-                }
-            }
-        }
-    }
-    //не готово
+    //получение файла с клиента
     private  void recieveFile(SocketChannel channel) throws IOException {
         System.out.println("Начнем принимать файл");
-        fileName="1.pdf";
-        Path outputFile = Paths.get(pathClient + "\\"+fileName);
+        System.out.println(fileSize);
+        System.out.println(filenameUP);
+//        fileName=filenameUP;
+        Path outputFile = Paths.get(filenameUP);
         int bufSize = 10240;
         //Path path = Paths.get(outputFile);
         FileChannel fileChannel = FileChannel.open(outputFile,
@@ -329,20 +386,20 @@ public class Server {
                         StandardOpenOption.WRITE)
         );
         ByteBuffer buffer = ByteBuffer.allocate(bufSize);
-        int res =0;
+        int res ;
         int counter=0;
         do {
             buffer.clear();
-            res = sock.read(buffer);
+            res = channel.read(buffer);
             System.out.println(res);
             buffer.flip();
-            if (res > 0) {
+            if (res > 0 && counter< fileSize) {
                 fileChannel.write(buffer);
                 counter += res;
-            }
+            } else if (res==0 && counter==fileSize) {break;}
         }
-        while (res>=0);
-        sock.close();
+        while (res>=0 );
+
         fileChannel.close();
         System.out.println("Reciever: " + counter);
 

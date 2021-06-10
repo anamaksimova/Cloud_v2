@@ -30,7 +30,7 @@ public class RegController {
         this.controller=controller;
     }
 
-
+//попытка регистрации
     public void tryToReg(ActionEvent actionEvent) throws IOException {
         String login = loginFieldReg.getText().trim();
         String password = passwordFieldReg.getText().trim();
