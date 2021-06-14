@@ -279,56 +279,7 @@ public class ClientController implements Runnable {
     }
 
 
-//    public void setMessage(String message){
-//        this.message=message;
-//    }
-//    // передача файла работает при указании пути вручную. запуталась на моменте как передать путь полученный
-//    // в workwindowcontroller,чтобы файл отправлялся автоматически при нажатии кнопки upload
-//    public void sendFile(SocketChannel client) throws IOException {
-//        //11,4MB
-//        //String fName = "C:\\тест\\Java руководство для начинающих ( PDFDrive ).pdf";
-//     //  Path filePath = workWindowController.getPath();
-//       // Path fileName = filePath.getFileName();
-//        int bufSize = 10240;
-//        int counter=0;
-//       // Path path = Paths.get(fName);
-//        System.out.println("отправим файл"+path);
-//        FileChannel fileChannel = FileChannel.open(path);
-//        ByteBuffer buf = ByteBuffer.allocate(bufSize);
-//        do{
-//            int noOfBytesRead = fileChannel.read(buf);
-//            if(noOfBytesRead<=0){
-//                break;
-//            }
-//            counter+=noOfBytesRead;
-//            buf.flip();
-//            do{noOfBytesRead-=client.write(buf);
-//            } while (noOfBytesRead>0);
-//            buf.clear();
-//
-//        } while (true);
-//        fileChannel.close();
-//        System.out.println("Reciever " + counter);
-//
-//    }
-//        //не готово
-//    public void uploadFile(ActionEvent actionEvent) throws IOException, InterruptedException {
-//
-//        FileChooser fileChooser = new FileChooser();
-//
-//        File selectedFile = fileChooser.showOpenDialog(workStage);
-//         path= Paths.get(selectedFile.getAbsolutePath());
-//        Path fileName = path.getFileName();
-//        System.out.println(path);
-//        System.out.println(fileName);
-//
-//        message = (String.format("%s %s", "UPLOAD", fileName));
-//        ((SocketChannel)key.channel())
-//                .write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
-//        sendFile(sock);
-////
-//
-//   }
+
     //ниже все для работы окна регистрации
     public void closeRegWindow() {
         regStage.close();
