@@ -10,10 +10,12 @@
       <Button layoutX="460.0" layoutY="53.0" mnemonicParsing="false" onAction="#upload" prefHeight="38.0" prefWidth="131.0" text="UPLOAD" />
       <Button layoutX="459.0" layoutY="105.0" mnemonicParsing="false" onAction="#info" prefHeight="38.0" prefWidth="131.0" text="GET INFO" />
       <Button layoutX="459.0" layoutY="157.0" mnemonicParsing="false" onAction="#delete" prefHeight="38.0" prefWidth="131.0" text="DELETE" />
-      <TextField fx:id="screen" layoutY="338.0" prefHeight="57.0" prefWidth="586.0" />
+      <TextField fx:id="screen" layoutY="363.0" prefHeight="57.0" prefWidth="586.0" />
       <Label fx:id="dirchoose" layoutY="300.0" prefHeight="30.0" prefWidth="446.0" />
       <Button fx:id="createDir" layoutX="459.0" layoutY="210.0" mnemonicParsing="false" onAction="#createDir" prefHeight="38.0" prefWidth="131.0" text="CREATE DIR" />
-      <Button fx:id="OK" visible="false" layoutX="230.0" layoutY="438.0" mnemonicParsing="false" onAction="#OK" prefHeight="38.0" prefWidth="131.0" text="OK" />
+      <Button fx:id="OK" layoutX="230.0" layoutY="438.0" mnemonicParsing="false" onAction="#OK" prefHeight="38.0" prefWidth="131.0" text="OK" visible="false" />
+      <Button fx:id="search" layoutX="460.0" layoutY="258.0" mnemonicParsing="false" onAction="#search" prefHeight="38.0" prefWidth="131.0" text="SEARCH" />
+      <Button fx:id="date" layoutX="460.0" layoutY="306.0" mnemonicParsing="false" onAction="#date" prefHeight="38.0" prefWidth="131.0" text="DATE" />
 
    </children>
 </Pane>

@@ -171,6 +171,15 @@ public class WorkWindowController2 {
                                    screen.setText("Размер файла: "+ cmd[1]+" = "+sizeKB +" Кбайт. Дата последнего изменения: "+dateOfChange);
 
                                 }
+                                if (command.startsWith("DATE_OK")) {
+
+                                    System.out.println("Запрос инфо прошел успешно\n");
+                                    String[] cmd = command.split(" ", 4);
+
+                                    String dateOfChange=cmd[2];
+                                    screen.setText(" Дата последнего изменения: "+dateOfChange);
+
+                                }
                                     //получение файла с сервера
                                 if (command.startsWith("DOWN_OK")) {
 
@@ -180,6 +189,19 @@ public class WorkWindowController2 {
                                     fileSize= Integer.parseInt(cmd[2]);
                                     System.out.println(fileSize);
                                     recieveFile(channel);
+
+                                }
+                                //получение файла с сервера
+                                if (command.startsWith("SEARCH_OK")) {
+
+                                    String[] cmd = command.split(" ", 2);
+                                   String fileNameSearch=cmd[1];
+                                    System.out.println(fileNameSearch);
+
+                                    list.removeAll(list);
+                                    listView.getItems().clear();
+                                    list.addAll(fileNameSearch);
+                                    listView.getItems().addAll(list);
 
                                 }
 
@@ -389,6 +411,18 @@ public class WorkWindowController2 {
 
         System.out.println(screen.getText());
         setMessage("CREATEDIR "+ screen.getText());
+        rw();
+    }
+
+    public void search(ActionEvent actionEvent) throws IOException {
+        setMessage("SEARCH "+ screen.getText());
+        rw();
+        screen.clear();
+    }
+
+    public void date(ActionEvent actionEvent) throws IOException {
+        String message= (String) "DATE "+screen.getText();
+        setMessage(message);
         rw();
     }
 }

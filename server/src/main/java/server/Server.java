@@ -10,21 +10,22 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Server {
 
@@ -207,6 +208,50 @@ public class Server {
                                         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
 
                                 }
+                                //поиск
+                                if (command.startsWith("SEARCH")){
+                                    String[] cmd= command.split(" ",2);
+
+                                    String dirname = "root\\"+login+"\\"; System.out.println(dirname);
+
+
+
+                                    String searchDirectory = dirname;
+                                    String fileName = cmd[1];
+                                    PathMatcher matcher = FileSystems.getDefault().getPathMatcher("regex:.*"+fileName );
+                                    Collection<Path> find = find(searchDirectory, matcher);
+
+                                    Path path = Paths.get((find.toString()));
+                                    String name = path.getFileName().toString();
+                                    System.out.println(name);
+
+                                   setMessage("SEARCH_OK "+name);
+                                    key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+
+
+
+                                }
+                                if (command.startsWith("DATE")){
+                                    String[] cmd= command.split(" ",2);
+                                    String filename = "root\\"+login+"\\"+cmd[1];
+                                    Path path = Paths.get(filename);
+                                    System.out.println(path);
+                                    if (Files.exists(path)){
+
+
+                                        FileTime fileTime=Files.getLastModifiedTime(path);
+                                        ZonedDateTime zonedDateTime = ZonedDateTime.parse(fileTime.toString());
+                                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy  HH:mm:ss");
+                                        System.out.println(dtf.format(zonedDateTime));
+                                        String dateOfChange = dtf.format(zonedDateTime);
+
+
+                                        setMessage("DATE_OK "+cmd[1]+" "+dateOfChange);
+                                        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+
+                                    }
+
+                                }
 
                                 //команда на скачивание файла с сервера
                                 if (command.startsWith("DOWN")){
@@ -362,6 +407,14 @@ public class Server {
         public AuthService getAuthService() {
     return authService;}
 
+    protected static Collection<Path> find(String searchDirectory, PathMatcher matcher) throws IOException {
+        try (Stream<Path> files = Files.walk(Paths.get(searchDirectory))) {
+            return files
+                    .filter(matcher::matches)
+                    .collect(Collectors.toList());
+
+        }
+    }
 
         //получение списка файлов в директории пользователя
     public String getFileList(String login) {
